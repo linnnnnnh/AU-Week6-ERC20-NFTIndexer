@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 import ERC20Result from './ERC20Result';
 import NFTResult from './NFTResult';
 
+
 const Indexers = () => {
     const [userAddress, setUserAddress] = useState('');
     const [walletAddress, setWalletAddress] = useState("");
@@ -28,8 +29,8 @@ const Indexers = () => {
     const [displayResults, setDisplayResults] = useState('all');
     const [error1, setError1] = useState(null);
     const [error2, setError2] = useState(null);
-    const [isPending1, setIsPending1] = useState(false);    
-    const [isPending2, setIsPending2] = useState(false);    
+    const [isPending1, setIsPending1] = useState(false);
+    const [isPending2, setIsPending2] = useState(false);
 
     const handleDisplay = (token) => {
         setDisplayResults(token);
@@ -87,18 +88,18 @@ const Indexers = () => {
     };
 
     const config = {
-        apiKey: '3kxYiG3rBAxaU2AIsUebbS1rOoaqE2LW',
-        network: Network.ETH_MAINNET,
+        apiKey: import.meta.env.VITE_MAINNET_API,
+        network: Network.ETH_MAINNET
     };
 
     const alchemy = new Alchemy(config);
 
-    async function walletFromENS() {
-        if (addr.includes(".eth")) {
+    async function walletFromENS(ens) {
+        if (ens.includes(".eth")) {
             try {
-                const addrFromENS = await alchemy.core.resolveName("vitalik.eth");
-                const addr = addrFromENS;
-                return addr;
+                const addrFromENS = await alchemy.core.resolveName(ens);
+                const ens = addrFromENS;
+                return ens;
             } catch (error) {
                 console.error("Error resolving ENS:", error);
             }
@@ -109,8 +110,8 @@ const Indexers = () => {
 
     async function getERC20Balance(addr) {
         try {
-            setIsPending1(true);    
-            walletFromENS();
+            setIsPending1(true);
+            walletFromENS(addr);
             const data = await alchemy.core.getTokenBalances(addr);
 
             setERC20Results(data);
@@ -137,7 +138,7 @@ const Indexers = () => {
     async function getNFTBalance(addr) {
         try {
             setIsPending2(true);
-            walletFromENS();
+            walletFromENS(addr);
 
             const data = await alchemy.nft.getNftsForOwner(addr);
             setNFTResults(data);
@@ -308,7 +309,7 @@ const Indexers = () => {
                                     <Heading mt={10} mb={10} fontSize={35} textAlign="left" color="#DEE1E6">
                                         ERC-20
                                     </Heading>
-                                    <ERC20Result ERC20Results={ERC20Results} ERC20DataObjects={ERC20DataObjects} error1={error1} isPending1={isPending1}/>
+                                    <ERC20Result ERC20Results={ERC20Results} ERC20DataObjects={ERC20DataObjects} error1={error1} isPending1={isPending1} />
                                 </Box>)
                         }
                         {displayResults === 'nft'
@@ -326,11 +327,11 @@ const Indexers = () => {
                                 <Heading mt={10} mb={10} fontSize={35} textAlign="left" color="#DEE1E6">
                                     ERC-20
                                 </Heading>
-                                <ERC20Result ERC20Results={ERC20Results} ERC20DataObjects={ERC20DataObjects} error1={error1} isPending1={isPending1}/>
+                                <ERC20Result ERC20Results={ERC20Results} ERC20DataObjects={ERC20DataObjects} error1={error1} isPending1={isPending1} />
                                 <Heading mt={10} mb={10} fontSize={35} textAlign="left" color="#DEE1E6">
                                     NFT
                                 </Heading>
-                                <NFTResult NFTResults={NFTResults} NFTDataObjects={NFTDataObjects} error2={error2} isPending2={isPending2}/>
+                                <NFTResult NFTResults={NFTResults} NFTDataObjects={NFTDataObjects} error2={error2} isPending2={isPending2} />
                             </Box>)
                         }
                     </Center>
